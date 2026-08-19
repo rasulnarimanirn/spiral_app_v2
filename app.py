@@ -1,51 +1,72 @@
 import streamlit as st
 from core_logic import PipeSpecifications
 
-# تنظیمات پایه و ظاهر صنعتی
+# تنظیمات پایه
 st.set_page_config(
     page_title="سیستم مانیتورینگ کارخانه لوله‌سازی اسپیرال",
     page_icon="⚙️",
     layout="wide"
 )
 
-# استایل بصری فاخر و متراکم (Dark Industrial Theme)
+# CSS اختصاصی برای رنگ‌بندی استاندارد، متراکم و کاملاً خوانا
 st.markdown("""
 <style>
-    .main { background-color: #0e1117; }
-    
-    /* کارت‌های شاخص مهندسی */
-    .kpi-card {
-        background: linear-gradient(135deg, #1f2430 0%, #161922 100%);
-        border: 1px solid #2e3545;
-        border-radius: 8px;
-        padding: 12px 16px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    /* تنظیم فونت و رنگ‌های استاندارد صنعتی */
+    html, body, [class*="css"] {
+        font-family: 'Tahoma', 'Segoe UI', sans-serif;
     }
-    .kpi-title { color: #8a99ad; font-size: 0.85rem; font-weight: bold; margin-bottom: 4px; }
-    .kpi-value { color: #ffffff; font-size: 1.4rem; font-weight: 800; font-family: monospace; }
-    .kpi-unit { color: #00d26a; font-size: 0.85rem; margin-left: 3px; }
+    
+    .main-title {
+        text-align: center;
+        color: #1a252c;
+        font-weight: 800;
+        font-size: 1.8rem;
+        margin-bottom: 5px;
+    }
+    
+    .sub-title {
+        text-align: center;
+        color: #5a6a85;
+        font-size: 0.95rem;
+        margin-bottom: 20px;
+    }
+
+    /* کارت‌های شاخص مهندسی (KPI) */
+    .kpi-card {
+        background-color: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-right: 4px solid #0284c7;
+        border-radius: 8px;
+        padding: 12px 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 10px;
+    }
+    .kpi-title { color: #64748b; font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; }
+    .kpi-value { color: #0f172a; font-size: 1.35rem; font-weight: 800; font-family: monospace; }
+    .kpi-unit { color: #0284c7; font-size: 0.85rem; font-weight: 600; margin-left: 2px; }
 </style>
 """, unsafe_allow_html=True)
 
-# سربرگ اصلی
-st.markdown("<h2 style='text-align: center; color: #f0f2f6; margin-bottom: 0px;'>🏭 مرکز مانیتورینگ و کنترل خطوط اسپیرال</h2>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #8a99ad; font-size: 0.9rem; margin-bottom: 25px;'>تنظیمات پایه و محاسبات هندسی محض</p>", unsafe_allow_html=True)
+# سربرگ برنامه
+st.markdown("<div class='main-title'>🏭 مرکز مانیتورینگ و کنترل خطوط اسپیرال</div>", unsafe_allow_html=True)
+st.markdown("<div class='sub-title'>تنظیمات پایه و محاسبات هندسی محض</div>", unsafe_allow_html=True)
 
-# پانل تنظیمات ثابت (فشرده در ۷ ستون یکنواخت)
-with st.expander("🛠️ تنظیمات پارامترهای ثابت خط (کلیک برای ویرایش)", expanded=True):
-    c1, c2, c3, c4, c5, c6, c7 = st.columns(7)
+# پانل ورودی‌های ثابت (فشرده و استاندارد)
+with st.expander("🛠️ تنظیمات پارامترهای ثابت خط", expanded=True):
+    col1, col2 = st.columns(2)
     
-    D = c1.number_input("قطر خارجی (mm)", value=1800.0, step=10.0, key="D_val")
-    t = c2.number_input("ضخامت (mm)", value=14.2, step=0.1, key="t_val")
-    W = c3.number_input("عرض ورق (mm)", value=1500.0, step=10.0, key="W_val")
-    L = c4.number_input("طول شاخه (mm)", value=12020.0, step=10.0, key="L_val")
-    limit = c5.number_input("حد مجاز T (mm)", value=300.0, step=10.0, key="Limit_val")
-    
-    # اضافه شدن دو متغیر پیش‌فرض پرت سر و ته
-    default_lead = c6.number_input("پرت سر کلاف (mm)", value=400.0, step=10.0, key="lead_val")
-    default_tail = c7.number_input("پرت ته کلاف (mm)", value=300.0, step=10.0, key="tail_val")
+    with col1:
+        D = st.number_input("قطر خارجی (D - mm)", value=1800.0, step=10.0, key="D_val")
+        t = st.number_input("ضخامت ورق (t - mm)", value=14.2, step=0.1, key="t_val")
+        W = st.number_input("عرض ورق (W - mm)", value=1500.0, step=10.0, key="W_val")
+        L = st.number_input("طول شاخه استاندارد (L - mm)", value=12020.0, step=10.0, key="L_val")
+        
+    with col2:
+        limit = st.number_input("حد مجاز T (Limit - mm)", value=300.0, step=10.0, key="Limit_val")
+        default_lead = st.number_input("پیش‌فرض پرت سر کلاف (mm)", value=400.0, step=10.0, key="lead_val")
+        default_tail = st.number_input("پیش‌فرض پرت ته کلاف (mm)", value=300.0, step=10.0, key="tail_val")
 
-# ساخت شیء هندسی بر اساس ورودی‌ها
+# فراخوانی کلاس محاسباتی
 specs = PipeSpecifications(
     outer_diameter=D,
     wall_thickness=t,
@@ -58,33 +79,33 @@ specs = PipeSpecifications(
 
 st.divider()
 
-# نمایش کارت‌های شاخص مهندسی در یک نوار شیک
-st.markdown("### 📊 خروجی‌های محاسباتی پایه")
+# نمایش کارت‌های خروجی
+st.markdown("##### 📊 خروجی‌های محاسباتی هندسی")
 k1, k2, k3, k4, k5 = st.columns(5)
 
 k1.markdown(f"""
-<div class='kpi-card' style='border-left: 4px solid #00d26a;'>
+<div class='kpi-card' style='border-right-color: #10b981;'>
     <div class='kpi-title'>زاویه هلیکس (α)</div>
     <div class='kpi-value'>{specs.helix_angle_deg:.2f}<span class='kpi-unit'>°</span></div>
 </div>
 """, unsafe_allow_html=True)
 
 k2.markdown(f"""
-<div class='kpi-card' style='border-left: 4px solid #00b4d8;'>
+<div class='kpi-card'>
     <div class='kpi-title'>محیط متوسط (C)</div>
     <div class='kpi-value'>{specs.perimeter:.1f}<span class='kpi-unit'>mm</span></div>
 </div>
 """, unsafe_allow_html=True)
 
 k3.markdown(f"""
-<div class='kpi-card' style='border-left: 4px solid #00b4d8;'>
+<div class='kpi-card'>
     <div class='kpi-title'>گام جوش (P)</div>
     <div class='kpi-value'>{specs.weld_pitch:.1f}<span class='kpi-unit'>mm</span></div>
 </div>
 """, unsafe_allow_html=True)
 
 k4.markdown(f"""
-<div class='kpi-card' style='border-left: 4px solid #00b4d8;'>
+<div class='kpi-card'>
     <div class='kpi-title'>قطر متوسط (D_m)</div>
     <div class='kpi-value'>{specs.mean_diameter:.1f}<span class='kpi-unit'>mm</span></div>
 </div>
@@ -92,7 +113,7 @@ k4.markdown(f"""
 
 strip_ratio = specs.pipe_length_to_strip_length(1000.0) / 1000.0
 k5.markdown(f"""
-<div class='kpi-card' style='border-left: 4px solid #fcd535;'>
+<div class='kpi-card' style='border-right-color: #f59e0b;'>
     <div class='kpi-title'>ضریب مصرف ورق</div>
     <div class='kpi-value'>{strip_ratio:.3f}<span class='kpi-unit'>m/m</span></div>
 </div>
