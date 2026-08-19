@@ -3,7 +3,6 @@ import math
 
 @dataclass
 class PipeSpecifications:
-    """ساختار داده‌های پایه و محاسبات هندسی محض لوله اسپیرال"""
     outer_diameter: float
     wall_thickness: float
     strip_width: float
@@ -11,7 +10,6 @@ class PipeSpecifications:
     t_joint_limit: float
     default_lead_crop: float = 400.0
     default_tail_crop: float = 300.0
-    steel_density: float = 7.85e-6
 
     @property
     def mean_diameter(self) -> float:
