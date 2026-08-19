@@ -1,6 +1,5 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 import math
-from typing import Dict
 
 @dataclass
 class PipeSpecifications:
@@ -10,7 +9,9 @@ class PipeSpecifications:
     strip_width: float     # W (mm)
     standard_length: float # L (mm)
     t_joint_limit: float   # Limit (mm)
-    steel_density: float = 7.85e-6  # kg/mm^3
+    default_lead_crop: float = 400.0  # پیش‌فرض پرت سر کلاف (mm)
+    default_tail_crop: float = 300.0  # پیش‌فرض پرت ته کلاف (mm)
+    steel_density: float = 7.85e-6   # kg/mm^3
 
     @property
     def mean_diameter(self) -> float:
@@ -37,24 +38,3 @@ class PipeSpecifications:
 
     def strip_length_to_pipe_length(self, strip_length_mm: float) -> float:
         return strip_length_mm * self.sin_alpha
-
-
-@dataclass
-class ProductionLine:
-    """مدیریت وضعیت یک خط تولید مجزا"""
-    line_name: str
-    specs: PipeSpecifications
-
-
-@dataclass
-class FactoryManager:
-    """مدیریت هوشمند و بدون تداخل ۳ خط تولید کارخانه"""
-    lines: Dict[str, ProductionLine] = field(default_factory=dict)
-
-    def update_or_create_line(self, line_name: str, specs: PipeSpecifications):
-        """ثبت یا به‌روزرسانی مشخصات یک خط بدون اثرگذاری روی سایر خطوط"""
-        self.lines[line_name] = ProductionLine(line_name=line_name, specs=specs)
-
-    def get_line(self, line_name: str) -> ProductionLine:
-        """فراخوانی داده‌های خط انتخابی"""
-        return self.lines.get(line_name)
