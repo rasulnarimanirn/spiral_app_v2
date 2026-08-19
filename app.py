@@ -1,55 +1,102 @@
 import streamlit as st
-from core_logic import PipeSpecifications
+from core_logic import PipeSpecifications, FactoryManager
 
-# تنظیمات اولیه صفحه
+# تنظیمات پایه صفحه
 st.set_page_config(
-    page_title="سیستم مانیتورینگ خط لوله‌سازی اسپیرال",
+    page_title="سیستم مانیتورینگ کارخانه لوله‌سازی اسپیرال",
     page_icon="⚙️",
     layout="wide"
 )
 
-# --- منوی جانبی (Sidebar): ورودی‌های ثابت پروژه ---
-st.sidebar.header("⚙️ مشخصات پایه پروژه")
+# ایجاد شیء مدیریت کارخانه در حافظه برنامه (Session State)
+if "factory" not in st.session_state:
+    st.session_state.factory = FactoryManager()
 
-outer_diameter = st.sidebar.number_input("قطر خارجی (D - mm)", value=1800.0, step=10.0)
-wall_thickness = st.sidebar.number_input("ضخامت ورق (t - mm)", value=14.2, step=0.1)
-strip_width = st.sidebar.number_input("عرض ورق (W - mm)", value=1500.0, step=10.0)
-standard_length = st.sidebar.number_input("طول شاخه استاندارد (L - mm)", value=12020.0, step=10.0)
-t_joint_limit = st.sidebar.number_input("حد مجاز فاصله T (mm)", value=300.0, step=10.0)
-steel_grade = st.sidebar.selectbox("گرید فولاد", ["API 5L X52", "API 5L X60", "ST37", "ST52"])
+st.title("🖥️ مدیریت و مانیتورینگ خطوط تولید اسپیرال")
+st.caption("سیستم جامع محاسبات هندسی و کنترل تولید - مدیریت ۳ خط هم‌زمان")
 
-# فراخوانی موتور محاسباتی
-pipe = PipeSpecifications(
-    outer_diameter=outer_diameter,
-    wall_thickness=wall_thickness,
-    strip_width=strip_width,
-    standard_length=standard_length,
-    t_joint_limit=t_joint_limit
-)
+# ایجاد تب‌های مجزا برای ۳ خط تولید
+tab_line1, tab_line2, tab_line3 = st.tabs(["🔴 خط تولید ۱", "🔵 خط تولید ۲", "🟢 خط تولید ۳"])
 
-# --- صفحه اصلی: داشبورد مانیتورینگ ---
-st.title("🖥️ مانیتورینگ خط تولید لوله اسپیرال")
-st.caption(f"گرید فعال: **{steel_grade}** | محاسبه هندسی محض بر اساس استاندارد کارخانه‌ای")
+lines_config = [
+    {"tab": tab_line1, "name": "خط تولید ۱", "default_D": 1800.0, "default_t": 14.2, "default_W": 1500.0},
+    {"tab": tab_line2, "name": "خط تولید ۲", "default_D": 1200.0, "default_t": 10.0, "default_W": 1250.0},
+    {"tab": tab_line3, "name": "خط تولید ۳", "default_D": 600.0, "default_t": 6.0, "default_W": 1000.0},
+]
 
-st.divider()
+for config in lines_config:
+    with config["tab"]:
+        st.subheader(f"تنظیمات و وضعیت {config['name']}")
+        
+        # بخش ورودی‌های هر خط در ۲ ستون خلوت
+        col_in1, col_in2 = st.columns(2)
+        
+        with col_in1:
+            outer_diameter = st.number_input(
+                f"قطر خارجی (D - mm) - {config['name']}",
+                value=config["default_D"],
+                step=10.0,
+                key=f"D_{config['name']}"
+            )
+            wall_thickness = st.number_input(
+                f"ضخامت ورق (t - mm) - {config['name']}",
+                value=config["default_t"],
+                step=0.1,
+                key=f"t_{config['name']}"
+            )
+            strip_width = st.number_input(
+                f"عرض ورق (W - mm) - {config['name']}",
+                value=config["default_W"],
+                step=10.0,
+                key=f"W_{config['name']}"
+            )
 
-# نمایش خروجی‌های اصلی در کارت‌های درشت و برجسته (KPI Metrics)
-col1, col2, col3, col4 = st.columns(4)
+        with col_in2:
+            standard_length = st.number_input(
+                f"طول شاخه استاندارد (L - mm) - {config['name']}",
+                value=12020.0,
+                step=10.0,
+                key=f"L_{config['name']}"
+            )
+            t_joint_limit = st.number_input(
+                f"حد مجاز فاصله T (mm) - {config['name']}",
+                value=300.0,
+                step=10.0,
+                key=f"Limit_{config['name']}"
+            )
+            steel_grade = st.selectbox(
+                f"گرید فولاد - {config['name']}",
+                ["API 5L X52", "API 5L X60", "ST37", "ST52"],
+                key=f"Grade_{config['name']}"
+            )
 
-with col1:
-    st.metric(label="زاویه هلیکس (α)", value=f"{pipe.helix_angle_deg:.2f}°")
+        # ثبت مشخصات خط در مدیریت کارخانه
+        specs = PipeSpecifications(
+            outer_diameter=outer_diameter,
+            wall_thickness=wall_thickness,
+            strip_width=strip_width,
+            standard_length=standard_length,
+            t_joint_limit=t_joint_limit
+        )
+        st.session_state.factory.update_or_create_line(config["name"], specs)
 
-with col2:
-    st.metric(label="محیط متوسط (C)", value=f"{pipe.perimeter:.1f} mm")
+        st.divider()
 
-with col3:
-    st.metric(label="گام جوش (P)", value=f"{pipe.weld_pitch:.1f} mm")
+        # نمایش خروجی‌های هندسی خط در کارت‌های شاخص درشت
+        st.markdown("### 📐 خروجی‌های هندسی و زاویه هلیکس")
+        kpi1, kpi2, kpi3, kpi4 = st.columns(4)
 
-with col4:
-    st.metric(label="قطر متوسط (D_m)", value=f"{pipe.mean_diameter:.1f} mm")
+        with kpi1:
+            st.metric("زاویه هلیکس (α)", f"{specs.helix_angle_deg:.2f}°")
 
-st.divider()
+        with kpi2:
+            st.metric("محیط متوسط (C)", f"{specs.perimeter:.1f} mm")
 
-# فضای باز و خلوت برای بخش‌های بعدی (کلاف جاری، T-Joint و ضایعات)
-st.subheader("📊 وضعیت کلاف جاری")
-st.info("این بخش در گام‌های بعدی برای مانیتورینگ کلاف استارت و پیش‌بینی‌ها تکمیل خواهد شد.")
+        with kpi3:
+            st.metric("گام جوش (P)", f"{specs.weld_pitch:.1f} mm")
+
+        with kpi4:
+            st.metric("قطر متوسط (D_m)", f"{specs.mean_diameter:.1f} mm")
+
+        st.divider()
+        st.info(f"اطلاعات {config['name']} ثبت شد. در گام بعدی بخش مانیتورینگ کلاف جاری و ضایعات این خط اضافه می‌شود.")
