@@ -1,5 +1,6 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import math
+from typing import Dict
 
 @dataclass
 class PipeSpecifications:
@@ -13,33 +14,47 @@ class PipeSpecifications:
 
     @property
     def mean_diameter(self) -> float:
-        """محاسبه قطر متوسط"""
         return self.outer_diameter - self.wall_thickness
 
     @property
     def perimeter(self) -> float:
-        """محاسبه محیط متوسط لوله"""
         return math.pi * self.mean_diameter
 
     @property
     def sin_alpha(self) -> float:
-        """سینوس زاویه هلیکس - کلید تبدیل دقیق طول ورق به لوله"""
         return self.strip_width / self.perimeter
 
     @property
     def helix_angle_deg(self) -> float:
-        """زاویه هلیکس به درجه"""
         return math.degrees(math.asin(self.sin_alpha))
 
     @property
     def weld_pitch(self) -> float:
-        """گام جوش اسپیرال (mm)"""
         return self.strip_width / math.cos(math.asin(self.sin_alpha))
 
     def pipe_length_to_strip_length(self, pipe_length_mm: float) -> float:
-        """تبدیل دقیق طول لوله به طول ورق بازشده"""
         return pipe_length_mm / self.sin_alpha
 
     def strip_length_to_pipe_length(self, strip_length_mm: float) -> float:
-        """تبدیل دقیق طول ورق بازشده به طول لوله تولیدی"""
         return strip_length_mm * self.sin_alpha
+
+
+@dataclass
+class ProductionLine:
+    """مدیریت وضعیت یک خط تولید مجزا"""
+    line_name: str
+    specs: PipeSpecifications
+
+
+@dataclass
+class FactoryManager:
+    """مدیریت هوشمند و بدون تداخل ۳ خط تولید کارخانه"""
+    lines: Dict[str, ProductionLine] = field(default_factory=dict)
+
+    def update_or_create_line(self, line_name: str, specs: PipeSpecifications):
+        """ثبت یا به‌روزرسانی مشخصات یک خط بدون اثرگذاری روی سایر خطوط"""
+        self.lines[line_name] = ProductionLine(line_name=line_name, specs=specs)
+
+    def get_line(self, line_name: str) -> ProductionLine:
+        """فراخوانی داده‌های خط انتخابی"""
+        return self.lines.get(line_name)
