@@ -4,14 +4,14 @@ import math
 @dataclass
 class PipeSpecifications:
     """ساختار داده‌های پایه و محاسبات هندسی محض لوله اسپیرال"""
-    outer_diameter: float  # D (mm)
-    wall_thickness: float  # t (mm)
-    strip_width: float     # W (mm)
-    standard_length: float # L (mm)
-    t_joint_limit: float   # Limit (mm)
-    default_lead_crop: float = 400.0  # پیش‌فرض پرت سر کلاف (mm)
-    default_tail_crop: float = 300.0  # پیش‌فرض پرت ته کلاف (mm)
-    steel_density: float = 7.85e-6   # kg/mm^3
+    outer_diameter: float
+    wall_thickness: float
+    strip_width: float
+    standard_length: float
+    t_joint_limit: float
+    default_lead_crop: float = 400.0
+    default_tail_crop: float = 300.0
+    steel_density: float = 7.85e-6
 
     @property
     def mean_diameter(self) -> float:
