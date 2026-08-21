@@ -16,9 +16,9 @@ button, input, select { font: inherit; }
 h1 { margin: 0; font-size: 30px; }
 .card { background: #fff; border: 1px solid #e4e7ec; border-radius: 16px; padding: 24px; box-shadow: 0 8px 24px rgba(16,24,40,.05); }
 .grid { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 16px; }
-.field { display: flex; flex-direction: column; gap: 7px; }
-.field label { font-size: 13px; font-weight: 700; }
-.field input, .field select { width: 100%; padding: 11px 12px; border: 1px solid #d0d5dd; border-radius: 10px; background: #fff; outline: none; }
+.field { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.field label { font-size: 13px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.field input, .field select { width: 100%; min-width: 0; padding: 11px 10px; border: 1px solid #d0d5dd; border-radius: 10px; background: #fff; outline: none; }
 .field input:focus, .field select:focus { border-color: #667085; }
 .reset-row { margin-top: 14px; display: flex; justify-content: flex-start; }
 button { border: 0; border-radius: 10px; padding: 11px 18px; cursor: pointer; font-weight: 700; }
@@ -37,4 +37,25 @@ button { border: 0; border-radius: 10px; padding: 11px 18px; cursor: pointer; fo
 .result .label { color: #667085; font-size: 12px; margin-bottom: 8px; }
 .result .value { font-size: 20px; font-weight: 700; direction: ltr; text-align: right; overflow-wrap: anywhere; }
 .note { margin-top: 16px; color: #667085; font-size: 12px; line-height: 1.8; }
-@media (max-width: 800px) { .grid, .result-grid { grid-template-columns: 1fr; } .page { padding: 16px; } }
+
+@media (max-width: 800px) {
+  .page { padding: 10px; }
+  .header { margin-bottom: 10px; }
+  .eyebrow { font-size: 10px; margin-bottom: 4px; }
+  h1 { font-size: 20px; }
+  .card { padding: 10px; border-radius: 12px; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px 8px; }
+  .field { gap: 4px; }
+  .field label { font-size: 11px; }
+  .field input, .field select { padding: 8px 7px; border-radius: 8px; font-size: 14px; height: 38px; }
+  .reset-row { margin-top: 9px; }
+  .reset-row .secondary { width: 100%; padding: 9px 12px; }
+  .results-toggle { margin-top: 10px; padding: 11px 12px; border-radius: 9px; font-size: 13px; }
+  .chevron { font-size: 20px; }
+  .results { padding: 10px; }
+  .result-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 7px; }
+  .result { padding: 9px; border-radius: 8px; }
+  .result .label { font-size: 10px; margin-bottom: 4px; }
+  .result .value { font-size: 15px; }
+  .note { margin-top: 8px; font-size: 10px; }
+}
