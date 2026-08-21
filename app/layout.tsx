@@ -1,3 +1,5 @@
+import "./globals.css";
+
 export const metadata = {
   title: "Spiral Pipe App",
   description: "Professional spiral pipe production calculator",
